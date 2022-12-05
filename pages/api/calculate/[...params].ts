@@ -1,6 +1,7 @@
 import { add, subtract, multiply, divide } from "../../../utils/calculate";
+import { NextApiRequest, NextApiResponse } from 'next'
 
-export default function handler(req, res) {
+export default function handler(req:NextApiRequest, res:NextApiResponse) {
   try {
     if (req.method !== "GET") {
       throw new Error(
@@ -8,8 +9,12 @@ export default function handler(req, res) {
       );
     }
 
+    if(!Array.isArray(req.query.params)) {
+      throw new Error(`Expected multiple params. got: ${req.query.params}`);
+    }
+
     const params = extractParams(req.query.params);
-    let result;
+    let result:number;
     switch (params.operation) {
       case "add":
         result = add(params.first, params.second);
@@ -27,12 +32,16 @@ export default function handler(req, res) {
         throw new Error(`Unsupported operation ${params.operation}`);
     }
     res.status(200).json({ result });
-  } catch (e) {
-    res.status(500).json({ message: e.message });
+  } catch (e:any) {
+    let errorMessage = 'Uknown Error'
+    if(e instanceof Error) {
+      errorMessage = e.message
+    }
+    res.status(500).json({ message: errorMessage });
   }
 }
 
-function extractParams(queryParams) {
+function extractParams(queryParams: string[]): QueryParams {
   if (queryParams.length !== 3) {
     throw new Error(
       `Query params should have 3 items. Received ${queryParams.length}: ${queryParams}`
@@ -45,9 +54,20 @@ function extractParams(queryParams) {
       first: parseInt(queryParams[1]),
       second: parseInt(queryParams[2]),
     };
+
+  if(isNaN(params.first) || isNaN(params.second)) {
+    throw new Error(
+      `Expected to receave numbers, insted got ${params.first} and ${params.second}`
+    )
+  }
+
     return params;
-  } catch (e) {
-    throw new Error(`Failed to process query params. Received: ${queryParams}`);
+  } catch (e:any) {
+    let errorMessage = `Failed to process query params. Received: ${queryParams}`
+    if(e instanceof Error) {
+      errorMessage = e.message
+    }
+    throw new Error(errorMessage);
   }
 }
 

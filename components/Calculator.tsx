@@ -13,22 +13,23 @@ import {
 import { OutlinedInput } from "@mui/material";
 import axios from "axios";
 
-import { useState } from "react";
+import { ChangeEvent, FormEvent, useState } from "react";
 
-const Calculator = () => {
+const Calculator = ():JSX.Element => {
   const [operation, setOperation] = useState("");
   const [result, setResult] = useState("");
 
-  const handleChange = (e) => {
+  const handleChange = (e: ChangeEvent<HTMLSelectElement>) => {
     setOperation(e.target.value);
   };
 
-  const handleCalculate = (e) => {
+  const handleCalculate = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const target = e.target as HTMLFormElement
     const query = {
       operation: operation,
-      first: e.target.first.value,
-      second: e.target.second.value,
+      first: target.first.value,
+      second: target.second.value,
     };
 
     axios
