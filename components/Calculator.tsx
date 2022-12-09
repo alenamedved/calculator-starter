@@ -29,8 +29,8 @@ const Calculator = (): JSX.Element => {
     e.preventDefault();
     const query = {
       operation: operation,
-      first: first.current.value,
-      second: second.current.value,
+      first: first.current?.value,
+      second: second.current?.value,
     };
 
     axios
