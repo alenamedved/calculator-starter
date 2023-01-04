@@ -18,9 +18,11 @@ import { useState, useRef, ChangeEvent, FormEvent } from "react";
 const Calculator = (): JSX.Element => {
   const [operation, setOperation] = useState("");
   const [result, setResult] = useState("");
+  const [error, setError] = useState(false);
   // const first = useRef<HTMLInputElement>();
   // const second = useRef<HTMLInputElement>();
-
+  const [first, setFirst] = useState("");
+  const [second, setSecond] = useState("");
   const handleChange = (e: ChangeEvent<HTMLSelectElement>) => {
     setOperation(e.target.value);
   };
@@ -32,7 +34,20 @@ const Calculator = (): JSX.Element => {
 
   const handleCalculate = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     const target = e.target as MyForm;
+
+    if (
+      operation.length === 0 ||
+      !isInputValid(target.first.value) ||
+      !isInputValid(target.second.value)
+    ) {
+      setError(true);
+
+      console.log("inputs are invalid");
+      return;
+    }
+    setError(false);
     const query = {
       operation: operation,
       first: target.first.value,
@@ -49,18 +64,52 @@ const Calculator = (): JSX.Element => {
       });
   };
 
+  const isInputValid = (e) => {
+    if (e === null) return true;
+    let value = e;
+    if (e.target) {
+      const { value } = e.target;
+    }
+    if (value.length === 0 || isNaN(Number(value))) {
+      return false;
+    }
+    return true;
+  };
+
+  const resetTheInput = (e) => {
+    console.log(e);
+    if (error) {
+      if (e.target.name === "first" && !isInputValid(e.target.value)) {
+        setFirst("");
+      }
+      if (e.target.name === "second" && !isInputValid(e.target.value)) {
+        setSecond("");
+      }
+    }
+  };
+  console.log(first, "first", first === "");
   return (
     <form id="calculator-form" onSubmit={handleCalculate}>
       <Grid2 container spacing={1}>
         <Grid2 xs={5}>
           <FormControl fullWidth>
-            <TextField id="first" label="First Number" variant="outlined" />
+            <TextField
+              id="first"
+              name="first"
+              value={first}
+              label="First Number"
+              variant="outlined"
+              onClick={(e) => resetTheInput(e)}
+              onChange={(e) => setFirst(e.target.value)}
+              error={error}
+              helperText={!error ? "" : "check the value, should be a number"}
+            />
           </FormControl>
         </Grid2>
         <Grid2 xs={2}>
           <FormControl fullWidth>
             <NativeSelect
-              input={<OutlinedInput />}
+              input={<OutlinedInput error={error} />}
               defaultValue={""}
               inputProps={{
                 name: "operation",
@@ -78,7 +127,17 @@ const Calculator = (): JSX.Element => {
         </Grid2>
         <Grid2 xs={5}>
           <FormControl fullWidth>
-            <TextField id="second" label="Second Number" variant="outlined" />
+            <TextField
+              id="second"
+              name="second"
+              value={second}
+              label="Second Number"
+              variant="outlined"
+              onClick={(e) => resetTheInput(e)}
+              onChange={(e) => setSecond(e.target.value)}
+              error={error}
+              helperText={!error ? "" : "check the value, should be a number"}
+            />
           </FormControl>
         </Grid2>
         <Grid2 xs={12}>
@@ -105,4 +164,3 @@ const Calculator = (): JSX.Element => {
   );
 };
 export default Calculator;
-
