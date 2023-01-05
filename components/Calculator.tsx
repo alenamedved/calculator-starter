@@ -116,6 +116,7 @@ const Calculator = (): JSX.Element => {
         <Grid2 xs={2}>
           <FormControl fullWidth>
             <NativeSelect
+            role={'Operator select'}
               input={
                 <OutlinedInput
                   error={!!operError}
