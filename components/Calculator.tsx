@@ -3,7 +3,6 @@ import {
   Box,
   Paper,
   TextField,
-  MenuItem,
   FormControl,
   NativeSelect,
   Button,
@@ -13,7 +12,7 @@ import {
 import { OutlinedInput } from "@mui/material";
 import axios from "axios";
 
-import { useState, useRef, ChangeEvent, FormEvent, MouseEvent } from "react";
+import { useState, ChangeEvent, FormEvent, MouseEvent } from "react";
 
 const Calculator = (): JSX.Element => {
   const [operation, setOperation] = useState("");
@@ -40,11 +39,13 @@ const Calculator = (): JSX.Element => {
     const target = e.target as MyForm;
     const errorMessage = "Not a number or empty";
     let error = false;
+
     const query = {
       operation: operation,
       first: target.first.value,
       second: target.second.value,
     };
+
     if (!isInputValid(query.first)) {
       setFirstError(errorMessage);
       error = true;
@@ -77,18 +78,19 @@ const Calculator = (): JSX.Element => {
     return true;
   };
 
-  const resetTheInput = (e) => {
+  const resetTheInput = (e: React.MouseEvent<HTMLInputElement>) => {
+    const target = e.target as HTMLInputElement
 
-    if (e.target.name === "first" && !isInputValid(e.target.value)) {
+    if (target.name === "first" && !isInputValid(target.value)) {
       setFirst("");
       setFirstError("");
     }
-    if (e.target.name === "second" && !isInputValid(e.target.value)) {
+    if (target.name === "second" && !isInputValid(target.value)) {
       setSecond("");
       setSecondError("");
     }
 
-    if (e.target.name === "operation" && !isInputValid(e.target.value)) {
+    if (target.name === "operation" && !isInputValid(target.value)) {
       setOperError("");
     }
   };
