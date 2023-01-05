@@ -18,11 +18,14 @@ import { useState, useRef, ChangeEvent, FormEvent } from "react";
 const Calculator = (): JSX.Element => {
   const [operation, setOperation] = useState("");
   const [result, setResult] = useState("");
-  const [error, setError] = useState(false);
   // const first = useRef<HTMLInputElement>();
   // const second = useRef<HTMLInputElement>();
   const [first, setFirst] = useState("");
   const [second, setSecond] = useState("");
+
+  const [firstError, setFirstError] = useState("");
+  const [secondError, setSecondError] = useState("");
+  const [operError, setOperError] = useState("");
   const handleChange = (e: ChangeEvent<HTMLSelectElement>) => {
     setOperation(e.target.value);
   };
@@ -34,60 +37,67 @@ const Calculator = (): JSX.Element => {
 
   const handleCalculate = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     const target = e.target as MyForm;
-
-    if (
-      operation.length === 0 ||
-      !isInputValid(target.first.value) ||
-      !isInputValid(target.second.value)
-    ) {
-      setError(true);
-
-      console.log("inputs are invalid");
-      return;
-    }
-    setError(false);
+    const errorMessage = "Not a number or empty";
+    let error = false;
     const query = {
       operation: operation,
       first: target.first.value,
       second: target.second.value,
     };
-
-    axios
-      .get(`/api/calculate/${query.operation}/${query.first}/${query.second}`)
-      .then((res) => {
-        setResult(res.data.result);
-      })
-      .catch((err) => {
-        setResult(err.response.data.message);
-      });
+    if (!isInputValid(query.first)) {
+      setFirstError(errorMessage);
+      error = true;
+    }
+    if (!isInputValid(query.second)) {
+      setSecondError(errorMessage);
+      error = true;
+    }
+    if (!query.operation) {
+      setOperError("Choose an operation");
+      error = true;
+    }
+    console.log(error, "error");
+    console.log(firstError, secondError, operError);
+    if (!error) {
+      axios
+        .get(`/api/calculate/${query.operation}/${query.first}/${query.second}`)
+        .then((res) => {
+          setResult(res.data.result);
+        })
+        .catch((err) => {
+          setResult(err.response.data.message);
+        });
+    }
   };
 
-  const isInputValid = (e) => {
-    if (e === null) return true;
-    let value = e;
-    if (e.target) {
-      const { value } = e.target;
-    }
+  const isInputValid = (value: string): boolean => {
+    console.log(value);
     if (value.length === 0 || isNaN(Number(value))) {
+      //setError(true);
       return false;
     }
     return true;
   };
 
   const resetTheInput = (e) => {
-    console.log(e);
-    if (error) {
-      if (e.target.name === "first" && !isInputValid(e.target.value)) {
-        setFirst("");
-      }
-      if (e.target.name === "second" && !isInputValid(e.target.value)) {
-        setSecond("");
-      }
+    console.log("reset");
+
+    if (e.target.name === "first" && !isInputValid(e.target.value)) {
+      setFirst("");
+      setFirstError("");
+    }
+    if (e.target.name === "second" && !isInputValid(e.target.value)) {
+      setSecond("");
+      setSecondError("");
+    }
+    console.log(e.target.value, '***************')
+    if (e.target.name === "operation" && !isInputValid(e.target.value)) {
+      console.log(e.target.value, '!!!!!!!!!!!!!!!!')
+      setOperError("");
     }
   };
-  console.log(first, "first", first === "");
+  console.log(firstError, secondError, operError, 'all errors');
   return (
     <form id="calculator-form" onSubmit={handleCalculate}>
       <Grid2 container spacing={1}>
@@ -101,15 +111,20 @@ const Calculator = (): JSX.Element => {
               variant="outlined"
               onClick={(e) => resetTheInput(e)}
               onChange={(e) => setFirst(e.target.value)}
-              error={error}
-              helperText={!error ? "" : "check the value, should be a number"}
+              error={!!firstError}
+              helperText={firstError || ""}
             />
           </FormControl>
         </Grid2>
         <Grid2 xs={2}>
           <FormControl fullWidth>
             <NativeSelect
-              input={<OutlinedInput error={error} />}
+              input={
+                <OutlinedInput
+                  error={!!operError}
+                  onClick={(e) => resetTheInput(e)}
+                />
+              }
               defaultValue={""}
               inputProps={{
                 name: "operation",
@@ -135,8 +150,8 @@ const Calculator = (): JSX.Element => {
               variant="outlined"
               onClick={(e) => resetTheInput(e)}
               onChange={(e) => setSecond(e.target.value)}
-              error={error}
-              helperText={!error ? "" : "check the value, should be a number"}
+              error={!!secondError}
+              helperText={secondError || ""}
             />
           </FormControl>
         </Grid2>
