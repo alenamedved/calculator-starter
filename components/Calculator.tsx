@@ -13,19 +13,19 @@ import {
 import { OutlinedInput } from "@mui/material";
 import axios from "axios";
 
-import { useState, useRef, ChangeEvent, FormEvent } from "react";
+import { useState, useRef, ChangeEvent, FormEvent, MouseEvent } from "react";
 
 const Calculator = (): JSX.Element => {
   const [operation, setOperation] = useState("");
   const [result, setResult] = useState("");
-  // const first = useRef<HTMLInputElement>();
-  // const second = useRef<HTMLInputElement>();
+
   const [first, setFirst] = useState("");
   const [second, setSecond] = useState("");
 
   const [firstError, setFirstError] = useState("");
   const [secondError, setSecondError] = useState("");
   const [operError, setOperError] = useState("");
+
   const handleChange = (e: ChangeEvent<HTMLSelectElement>) => {
     setOperation(e.target.value);
   };
@@ -57,8 +57,7 @@ const Calculator = (): JSX.Element => {
       setOperError("Choose an operation");
       error = true;
     }
-    console.log(error, "error");
-    console.log(firstError, secondError, operError);
+
     if (!error) {
       axios
         .get(`/api/calculate/${query.operation}/${query.first}/${query.second}`)
@@ -72,16 +71,13 @@ const Calculator = (): JSX.Element => {
   };
 
   const isInputValid = (value: string): boolean => {
-    console.log(value);
     if (value.length === 0 || isNaN(Number(value))) {
-      //setError(true);
       return false;
     }
     return true;
   };
 
   const resetTheInput = (e) => {
-    console.log("reset");
 
     if (e.target.name === "first" && !isInputValid(e.target.value)) {
       setFirst("");
@@ -91,13 +87,12 @@ const Calculator = (): JSX.Element => {
       setSecond("");
       setSecondError("");
     }
-    console.log(e.target.value, '***************')
+
     if (e.target.name === "operation" && !isInputValid(e.target.value)) {
-      console.log(e.target.value, '!!!!!!!!!!!!!!!!')
       setOperError("");
     }
   };
-  console.log(firstError, secondError, operError, 'all errors');
+
   return (
     <form id="calculator-form" onSubmit={handleCalculate}>
       <Grid2 container spacing={1}>
